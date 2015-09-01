@@ -1,0 +1,31 @@
+var tempStr;
+var discoveredPieces = 0;
+while(discoveredPieces < 4) 
+{
+
+	tempStr = start +  (temp++) + Math.random();
+
+	var hashObj = new jsSHA(
+"SHA-512",
+"TEXT",
+{numRounds: 10}
+);
+
+	hashObj.update(tempStr );
+	var tmp = hashObj.getHash("HEX");
+	
+for (var i = 0, len = tmp.length; i < len; i++) 
+	{
+		
+if(tmp[i] != "0")
+			break;
+	
+}
+
+	discoveredPieces = i;
+
+}
+
+console.log(discoveredPieces);
+
+console.log(tempStr);

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body, html {
+                background: #2F9064;
+                margin:0px;
+                min-height: 100%;
+            }
+            #loginContainer {
+                margin: auto;
+                position: absolute;
+                top: 0; 
+                left: 0; 
+                bottom: 0; 
+                right: 0;
+                height: 25em;
+                width: 40em;
+                background: #197C4F;
+                border-radius: 5px;
+                box-shadow: #197C4F 0 0 0.25em 0.25em;
+
+                padding: 1.2em;
+                transition: width 1s, height 1s;
+                box-sizing: border-box;
+            }
+            #loading {
+                text-align: center;
+            }
+            #auth-password {
+                font-size: 1.5em;
+                text-align: center;
+            }
+            #auth-password label {
+                display: block;
+            }
+            #auth-password label span,
+            #auth-password label input {
+                display: inline-block;
+                width: 12.5em;
+                height: 1.5em;
+            }
+            #loginContainer.fullsize {
+                min-height: 100%;
+                width: 100%;
+                margin:0px;
+                position: absolute;
+                padding: 0;
+
+            }
+            #console-frame {
+                flex-wrap: wrap;
+                height: 100%;
+            }
+            #console {
+                display: flex; 
+                min-height: 100%; 
+                flex-direction: column;
+            }
+            #loginContainer.error {
+                background: red;
+                text-align: center;
+            }
+            #console-servers {
+                text-align: center;
+                padding: 2px;
+                background: #B34A24;
+            }
+            .server {
+                min-height: 2em; 
+                display: block; 
+                padding: 5px;
+                list-style: none;
+            }
+            .server p {
+                margin: 0px;
+                border-radius: 5px;
+                border: outset #F39674 2px;
+                cursor: pointer;
+                padding: 3px;
+                background: #D06A44;
+            }
+            .server .server-title {
+                font-size: 2em;
+            }
+            .server p:hover {
+                background: #F39674;
+            }
+
+            .create-server {
+                display: block; 
+                padding: 5px;
+            }
+            .create-server p {
+                cursor: pointer;
+                border: outset #50A880 2px;
+                background-color: #50A880;
+                border-radius: 5px;
+                margin: 0px;
+                font-size: 1.5em;
+            }
+            .create-server p:hover {
+                background: #2F9064;
+            }
+
+            .server-status {
+                display: inline-block;
+                border: outset 2px;
+                border-radius: 3px;
+                padding: 1px;
+            }
+            .offline {
+                background-color: yellow;
+                border-color: yellow;
+            }
+            .crashed {
+                background-color: red;
+                border-color: red;
+            }
+            .online {
+                background: green;
+                border-color: green;
+            }
+            #console-body {
+                display: flex; 
+                flex: 1;
+                min-height: 100%;
+                flex-wrap: wrap;
+            }
+            .server-information {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            .server-wrapper {
+                min-height: 100%;
+            }
+            .server-information .tabs {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            .server-information .tabs > * {
+                flex: 1;
+            }
+            .navbar {
+                border-bottom: 1px solid black;
+                margin: 0px;
+                padding: 5px 5px 0px 5px;
+            }
+            .navbar > *{
+                display: inline-block;
+                border: 1px solid black;
+                border-bottom: none;
+                border-top-left-radius: 5px; 
+                border-top-right-radius: 5px;
+                padding: 5px;
+                cursor: pointer;
+            }
+            .tabs .tab-console {
+                display: flex;
+                flex-direction: column;
+                background: white;
+                color: black;
+                margin: 0.5em;
+                box-shadow: 0 0 0.25em 0.25em white;
+            }
+            .tabs .tab-console .command-form {
+                display: flex;
+            }
+            .tabs .tab-console .command-form .command {
+                flex:1; 
+                height: 28px;
+                box-sizing: border-box;
+            }
+            .tabs .tab-console .command-form button {
+                width: 110px; 
+                height: 28px;
+                box-sizing: border-box;
+            }
+
+
+        </style>
+        <script src="js/vendor/jquery-1.11.2.js"></script>
+        <script src="js/jssha/src/sha512.js"></script><!-- TODO: load script dynamic if needed for hashing -->
+        <script>
+            var mainEndPoint = "http://ferrybig.no-ip.info:8000/service"
+            function setStatus(serverid, status, exitcode) {
+                var newStatus;
+                var newStatusClass;
+                if (status == "stopped") {
+                    if (exitcode != "0") {
+                        newStatusClass = "error";
+                        newStatus = "Crashed: " + exitcode;
+                    } else {
+                        newStatusClass = "offline";
+                        newStatus = "Offline";
+                    }
+                } else {
+                    newStatusClass = "online";
+                    newStatus = "online";
+                }
+                var id = $("#server-status-" + serverid + " .server-status");
+                id.attr("class", "server-status");
+                id.addClass(newStatusClass);
+                id.text(newStatus);
+            }
+
+            $(function () {
+                $.ajax({
+                    type: "GET",
+                    url: mainEndPoint + "?service=config",
+                    dataType: "json",
+                    success: function (data) {
+                        var endpoints = data.endpoints;
+                        console.log("New endpoints discovered: " + endpoints);
+                        if (endpoints.length > 0) {
+                            var newLoc = getLocation(endpoints[0]);
+                            console.log("New loc: " + newLoc);
+                            var oldLoc = getLocation(mainEndPoint);
+                            console.log("Old loc: " + oldLoc);
+                            if (newLoc.host === undefined || newLoc.host.length === 0) {
+                                newLoc.host = oldLoc.host;
+                            }
+                            if (newLoc.protocol === undefined || newLoc.protocol.length === 0) {
+                                newLoc.protocol = oldLoc.protocol;
+                            }
+                            if (newLoc.port === undefined || newLoc.port.length === 0) {
+                                newLoc.port = oldLoc.port || (newLoc.protocol === "https" ? 443 : 80);
+                            }
+
+                            mainEndPoint = newLoc.protocol + "://" + newLoc.host + newLoc.pathname;
+                            console.log("New mainendpoint: " + mainEndPoint);
+                        }
+                        if (data.authmethod === "none") {
+                            mainPanel();
+                        } else if (data.authmethod === "password") {
+                            authPassword();
+                        } else if (data.authmethod === "url") {
+                            authURL();
+                        } else {
+                            errorOut("Unsupported auth method: " + data.authmethod);
+                        }
+                    },
+                    error: function (errMsg, shortError, longError) {
+                        errorOut("Throuble with connecting to main endpoint: (" + shortError + ": " + longError + ")");
+                    }
+                });
+
+            });
+
+            function errorOut(message) {
+                $("#loginContainer").removeClass("fullsize");
+                $("#loginContainer").addClass("error");
+                $("#loginContainer > *").hide();
+                $("#loginContainer > #auth-error").show();
+                $("#errormessage").text(message);
+                console.log(message);
+            }
+            function mainPanel() {
+
+            }
+            function authPassword() {
+                $("#loginContainer > *").hide();
+                $("#loginContainer > #auth-password").show();
+            }
+            var currentseed = "";
+            var proofOfWorkRequired = 0;
+            var myProofOfWorks = [];
+            var webWorkersProofs;
+            var workNow = 0;
+            var processors = navigator.hardwareConcurrency + 1 || 4;
+            function requestNewSeed() {
+                $.ajax({
+                    type: "POST",
+                    url: mainEndPoint + "?service=password",
+                    dataType: "json",
+                    success: function (data) {
+                        currentseed = data.random;
+                        proofOfWorkRequired = data.proofs || 0;
+                        myProofOfWorks = [];
+                        if (proofOfWorkRequired > 0) {
+                            startGeneratingProofOfWork();
+                        }
+                    },
+                    error: function (errMsg, shortError, longError) {
+                        errorOut("Throuble with connecting to the password endpoint: (" + shortError + ": " + longError + ")");
+                    }
+                });
+            }
+            function startGeneratingProofOfWork() {
+                if (typeof (Worker) !== "undefined") {
+                    if (typeof (w) === "undefined") {
+                        w = [];
+                        for (var i = 0; i < processors; i++)
+                            w[i] = new Worker("js/webworker_proof_of_work.js");
+                    }
+                    workNow = 1;
+                    document.getElementById("result").innerHTML = "";
+                    var message = {
+                        dificulty: 4,
+                        seed: currentseed
+                    };
+                    for (var i = 0; i < processors; i++) {
+                        (function (t) {
+                            w[t].onmessage = function (event) {
+                                myProofOfWorks.push(event.data);
+                                if (workNow++ < proofOfWorkRequired)
+                                    w[t].postMessage(message);
+
+                                else
+                                {
+                                    stopWorker();
+                                }
+                            };
+                            w[t].postMessage(message);
+                        })(i);
+                    }
+                } else {
+                    document.getElementById("result").innerHTML = "Sorry! No Web Worker support.";
+                }
+            }
+
+            function stopWorker() {
+                for (var i = 0; i < processors; i++) {
+                    w[i].terminate();
+                }
+                w = undefined;
+            }
+            function authURL() {
+
+            }
+            function getLocation(href) {
+                var match = href.match(/^((https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?))?(\/[^?#]*)(\?[^#]*|)(#.*|)$/);
+                return match && {
+                    protocol: match[2],
+                    host: match[3],
+                    hostname: match[4],
+                    port: match[5],
+                    pathname: match[6],
+                    search: match[7],
+                    hash: match[8]
+                };
+            }
+
+            $(function () {
+                $(".server-information .navbar > *").click(function () {
+                    var l = $(this);
+                    $(".server-information .tabs > *").hide();
+                    $(".server-information .tabs > ." + l.attr('class')).show();
+                });
+            });
+        </script>
+
+    </head>
+    <body>
+        <div id="loginContainer" class="">
+            <div id="loading">
+                <p><img src="images/loading.gif" alt="" width="256" height="256"></p>
+                <p>Plz wait until we made a connection to our servers...</p>
+            </div>
+            <div id="auth-url" hidden>
+                <p><img src="images/loading.gif" alt="" width="256" height="256"></p>
+                <p>Contacting remote server for automatic login</p>
+            </div>
+            <form id="auth-password" hidden action="#">
+                <p><img src="images/logo.png" alt="" width="300" height="150"></p>
+                <p>Login to server "ferrybigs hosting #01"</p>
+                <label>
+                    <span>Username:</span>
+                    <input placeholder="Username" name="username" id="username" type="text">
+                </label>
+                <label>
+                    <span>Password:</span>
+                    <input placeholder="Password" name="password" id="password" type="password">
+                </label>
+                <input type="submit" >
+            </form>
+            <div id="auth-password-next" hidden>
+                <p><img src="images/loading.gif" alt="" width="256" height="256"></p>
+                <p>Contacting remote server for login information</p>
+            </div>
+            <div id="auth-error" hidden>
+                <p><img src="images/error.png" alt="" width="256" height="256"></p>
+                <p id="errormessage">An error happend</p>
+            </div>
+            <div id="console-frame" hidden>
+                <div id="console">
+                    <div id="console-title" style="min-height: 5em; border-bottom: 1px solid black; display: flex">
+                        <div id="console-title-left">
+                            <img src="images/logo.png" width="150" height="90" alt="logo" style>
+                        </div>
+                        <div id="console-title-middle" style="flex:1; text-align: center;">
+                            <p>Powered by <span id="poweredby">&lt;Unknown hosting company&gt;</span></p>
+                        </div>
+                        <div id="console-title-login" style="max-width: 20em">
+                            <span>Logged in as:</span>
+                            <span id="loggedInUser">UnknownUser12345</span>
+                            <br>
+                            <a href="#" id="changePassword">Change password</a>
+                        </div>
+                    </div>
+                    <div id="console-body">
+                        <ul id="console-servers" style="padding:0;margin:0;width: 20%; max-width: 15em; border-right: 1px solid black">
+                            <li class="create-server">
+                                <p>
+                                    <span>Create a new server</span>
+                                </p>
+                            </li>
+                            <li class="server" id="server-status-test">
+                                <p>
+                                    <span class="server-title">Test</span>
+                                    <br>
+                                    <span class="server-status offline">Offline</span>
+                                    <span>127.0.0.1:25565</span>
+                                    <br>
+                                    <span>Owned by ferrybig</span>
+                                </p>
+                            </li>
+                            <li class="server" id="server-status-test-2">
+                                <p>
+                                    <span class="server-title">Test-2</span>
+                                    <br>
+                                    <span class="server-status online">Online</span>
+                                    <span>[::1]:25565</span>
+                                    <br>
+                                    <span>Private</span>
+                                </p>
+                            </li>
+                            <li class="server" id="server-status-test-3">
+                                <p>
+                                    <span class="server-title">Test-3</span>
+                                    <br>
+                                    <span class="server-status crashed">Crashed</span>
+                                    <span>[::ffff:127.0.0.1]:25565</span>
+                                    <br>
+                                    <span>Private</span>
+                                </p>
+                            </li>
+                        </ul>
+                        <div class="server-information" id="server-information" style="display:none;">
+                            <p>Choose a server on the left to manage</p>
+                        </div>
+                        <div class="server-information" id="server-information-test">
+                            <ul class="quickactions">
+                                <!-- Default actions -->
+                                <li class="start">Start</li>
+                                <li class="kill">kill</li>
+                                <li class="forcekill">Forcedkill</li>
+                                <!--/ Default actions -->
+
+                            </ul>
+                            <ul class="navbar">
+                                <li class="tab-console">Console</li>
+                                <li class="tab-settings">Settings</li>
+                                <li class="tab-plugin">Plugins</li>
+                            </ul>
+                            <div class="tabs" style="display: flex">
+                                <div class="tab-console" style="display: none;">
+                                    <div class="console" style="flex:1; overflow: scroll;">
+                                        <p class="log" style="white-space: nowrap; margin:0;"></p>
+                                    </div>
+                                    <form action="#" class="command-form">
+                                        <input type="text" class="command">
+                                        <button type="submit">Send command</button>
+                                    </form>
+                                </div>
+                                <div class="tab-settings" style="display: none;">
+                                    <form action="#">
+                                        <input type="text" name="setting-test-binding-0-ip" value="127.0.0.1">
+                                        <input type="text" name="setting-test-binding-0-port" value="25565">
+                                    </form>
+                                </div>
+                                <div class="tab-plugin" style="display: none;">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
