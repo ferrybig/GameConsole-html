@@ -1,0 +1,191 @@
+body, html {
+    background: #2F9064;
+    margin:0px;
+    min-height: 100%;
+}
+#loginContainer {
+    margin: auto;
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    bottom: 0; 
+    right: 0;
+    height: 25em;
+    width: 40em;
+    background: #197C4F;
+    border-radius: 5px;
+    box-shadow: #197C4F 0 0 0.25em 0.25em;
+
+    padding: 1.2em;
+    transition: width 1s, height 1s;
+    box-sizing: border-box;
+}
+#loading {
+    text-align: center;
+}
+#auth-password {
+    font-size: 1.5em;
+    text-align: center;
+}
+#auth-password label {
+    display: block;
+}
+#auth-password label span,
+#auth-password label input {
+    display: inline-block;
+    width: 12.5em;
+    height: 1.5em;
+}
+#loginContainer.fullsize {
+    min-height: 100%;
+    width: 100%;
+    margin:0px;
+    position: absolute;
+    padding: 0;
+
+}
+#console-frame {
+    flex-wrap: wrap;
+    height: 100%;
+}
+#console {
+    display: flex; 
+    min-height: 100%; 
+    flex-direction: column;
+}
+#loginContainer.error {
+    background: red;
+    text-align: center;
+}
+#console-servers {
+    text-align: center;
+    padding: 2px;
+    background: #B34A24;
+}
+.server {
+    min-height: 2em; 
+    display: block; 
+    padding: 5px;
+    list-style: none;
+}
+.server p {
+    margin: 0px;
+    border-radius: 5px;
+    border: outset #F39674 2px;
+    cursor: pointer;
+    padding: 3px;
+    background: #D06A44;
+}
+.server .server-title {
+    font-size: 2em;
+}
+.server p:hover {
+    background: #F39674;
+}
+
+.create-server {
+    display: block; 
+    padding: 5px;
+}
+.create-server p {
+    cursor: pointer;
+    border: outset #50A880 2px;
+    background-color: #50A880;
+    border-radius: 5px;
+    margin: 0px;
+    font-size: 1.5em;
+}
+.create-server p:hover {
+    background: #2F9064;
+}
+
+.server-status {
+    display: inline-block;
+    border: outset 2px;
+    border-radius: 3px;
+    padding: 1px;
+}
+.offline {
+    background-color: yellow;
+    border-color: yellow;
+}
+.crashed {
+    background-color: red;
+    border-color: red;
+}
+.online {
+    background: green;
+    border-color: green;
+}
+#console-body {
+    display: flex; 
+    flex: 1;
+    min-height: 100%;
+    flex-wrap: wrap;
+}
+.server-information {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.server-wrapper {
+    min-height: 100%;
+}
+.server-information .tabs {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.server-information .tabs > * {
+    flex: 1;
+}
+.navbar {
+    border-bottom: 1px solid black;
+    margin: 0px;
+    padding: 5px 5px 0px 5px;
+}
+.navbar > *{
+    display: inline-block;
+    border: 1px solid black;
+    border-bottom: none;
+    border-top-left-radius: 5px; 
+    border-top-right-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+.tabs .tab-console {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    color: black;
+    margin: 0.5em;
+    box-shadow: 0 0 0.25em 0.25em white;
+}
+.tabs .tab-console .command-form {
+    display: flex;
+}
+.tabs .tab-console .command-form .command {
+    flex:1; 
+    height: 28px;
+    box-sizing: border-box;
+}
+.tabs .tab-console .command-form button {
+    width: 110px; 
+    height: 28px;
+    box-sizing: border-box;
+}
+
+.quickactions {
+    display: block;
+    margin: 0;
+    padding: 2px;
+    list-style: none;
+}
+.quickactions > * {
+    display: inline-block;
+    list-style: none;
+    padding: 4px;
+    border: 1px solid black;
+    border-radius: 3px;
+    margin: 2px;
+}

@@ -32,4 +32,4 @@ onmessage = function (e) {
     }
 
     postMessage(tempStr);
-}
+};
