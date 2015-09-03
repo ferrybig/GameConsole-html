@@ -8,6 +8,7 @@ var sessionToken = "";
 var processors = navigator.hardwareConcurrency + 1 || 4;
 var constructedPasswordCallback = false;
 var userLoggedIn = false;
+var knownServers = {};
 function setStatus(serverid, status, exitcode) {
     var newStatus;
     var newStatusClass;
@@ -214,13 +215,13 @@ function getLocation(href) {
     };
 }
 
-$(function () {
-    $(".server-information .navbar > *").click(function () {
-        var l = $(this);
-        $(".server-information .tabs > *").hide();
-        $(".server-information .tabs > ." + l.attr('class')).show();
-    });
-});
+//$(function () {
+//    $(".server-information .navbar > *").click(function () {
+//        var l = $(this);
+//        $(".server-information .tabs > *").hide();
+//        $(".server-information .tabs > ." + l.attr('class')).show();
+//    });
+//});
 
 
 
@@ -229,8 +230,15 @@ $(function () {
 
 
 
-function mainPanel() {
+function mainPanel(hassAllPermissions) {
     $("#loginContainer > *").hide();
     $("#loginContainer").addClass("fullsize");
     $("#loginContainer > #console-frame").show();
+    if(hassAllPermissions) {
+        $(".create-server").show();
+    }
+}
+function refreshServers() {
+    var newServers = {};
+    
 }

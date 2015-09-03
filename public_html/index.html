@@ -13,6 +13,37 @@ and open the template in the editor.
         <script src="js/vendor/jquery-1.11.2.js"></script>
         <script src="js/jssha/src/sha512.js"></script><!-- TODO: load script dynamic if needed for hashing -->
         <script src="js/main.js"></script>
+        <script type="text/template" id="server-template-main">
+            <div class="server-information" id="server-information-test">
+                <ul class="quickactions">
+                </ul>
+                <ul class="navbar">
+                </ul>
+                <div class="tabs">
+                </div>
+            </div>
+        </script>
+        <script type="text/template" id="server-template-tab-console">
+            <div class="console">
+                <p class="log"></p>
+            </div>
+            <form action="#" class="command-form">
+                <input type="text" class="command">
+                <button type="submit">Send command</button>
+            </form>
+        </script>
+        <script type="text/template" id="server-template-list">
+            <li class="server">
+                <p>
+                    <span class="server-title"></span>
+                    <br>
+                    <span class="server-status"></span>
+                    <span class="quickdesc"></span>
+                    <br>
+                    <span class="owner"></span>
+                </p>
+            </li>
+        </script>
 
     </head>
     <body>
@@ -70,103 +101,11 @@ and open the template in the editor.
                                     <span>Create a new server</span>
                                 </p>
                             </li>
-                            <li class="server" id="server-status-test">
-                                <p>
-                                    <span class="server-title">Test</span>
-                                    <br>
-                                    <span class="server-status offline">Offline</span>
-                                    <span>127.0.0.1:25565</span>
-                                    <br>
-                                    <span>Owned by ferrybig</span>
-                                </p>
-                            </li>
-                            <li class="server" id="server-status-test-2">
-                                <p>
-                                    <span class="server-title">Test-2</span>
-                                    <br>
-                                    <span class="server-status online">Online</span>
-                                    <span>[::1]:25565</span>
-                                    <br>
-                                    <span>Private</span>
-                                </p>
-                            </li>
-                            <li class="server" id="server-status-test-3">
-                                <p>
-                                    <span class="server-title">Test-3</span>
-                                    <br>
-                                    <span class="server-status crashed">Crashed</span>
-                                    <span>[::ffff:127.0.0.1]:25565</span>
-                                    <br>
-                                    <span>Private</span>
-                                </p>
-                            </li>
                         </ul>
                         <div class="server-information" id="server-information" style="display:none;">
                             <p>Choose a server on the left to manage</p>
                         </div>
-                        <div class="server-information" id="server-information-test">
-                            <ul class="quickactions">
-                                <!-- Default actions -->
-                                <li class="start">Start</li>
-                                <li class="kill">kill</li>
-                                <li class="forcekill">Forcedkill</li>
-                                <!--/ Default actions -->
-
-                            </ul>
-                            <ul class="navbar">
-                                <li class="tab-console">Console</li>
-                                <li class="tab-settings">Settings</li>
-                                <li class="tab-plugin">Plugins</li>
-                            </ul>
-                            <div class="tabs" style="display: flex">
-                                <div class="tab-console" style="display: none;">
-                                    <div class="console" style="flex:1; overflow: scroll;">
-                                        <p class="log" style="white-space: nowrap; margin:0;"></p>
-                                    </div>
-                                    <form action="#" class="command-form">
-                                        <input type="text" class="command">
-                                        <button type="submit">Send command</button>
-                                    </form>
-                                </div>
-                                <div class="tab-settings" style="display: none;">
-                                    <form action="#">
-                                        <div class="settings-bindings">
-                                            <p>
-                                                <label>
-                                                    <span>Ip address #1</span>
-                                                    <input type="text" name="setting-test-binding-0-ip" value="127.0.0.1">
-                                                </label>
-                                            </p>
-                                            <p>
-                                                <label>
-                                                    <span>Port #1</span>
-                                                    <input type="text" name="setting-test-binding-0-port" value="25565">
-                                                </label>
-                                            </p>
-                                        </div>
-                                        <div class="settings-basic">
-                                            <p>
-                                                <label>
-                                                    <span>Server-name</span>
-                                                    <input type="text" name="setting-test-server-name" value="Unknown server">
-                                                </label>
-                                            </p>
-                                        </div>
-                                        <div class="settings-minecraft">
-                                            <p>
-                                                <label>
-                                                    <span>Server-name</span>
-                                                    <input type="text" name="setting-test-server-name" value="127.0.0.1">
-                                                </label>
-                                            </p>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="tab-plugin" style="display: none;">
-
-                                </div>
-                            </div>
-                        </div>
+                        
                     </div>
                 </div>
             </div>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div class="server-information" id="server-information-test">
+                            <ul class="quickactions">
+                                <!-- Default actions -->
+                                <li class="start">Start</li>
+                                <li class="kill">kill</li>
+                                <li class="forcekill">Forcedkill</li>
+                                <!--/ Default actions -->
+
+                            </ul>
+                            <ul class="navbar">
+                                <li class="tab-console">Console</li>
+                                <li class="tab-settings">Settings</li>
+                                <li class="tab-plugin">Plugins</li>
+                            </ul>
+                            <div class="tabs" style="display: flex">
+                                <div class="tab-console" style="display: none;">
+                                    <div class="console" style="flex:1; overflow: scroll;">
+                                        <p class="log" style="white-space: nowrap; margin:0;"></p>
+                                    </div>
+                                    <form action="#" class="command-form">
+                                        <input type="text" class="command">
+                                        <button type="submit">Send command</button>
+                                    </form>
+                                </div>
+                                <div class="tab-settings" style="display: none;">
+                                    <form action="#">
+                                        <div class="settings-bindings">
+                                            <p>
+                                                <label>
+                                                    <span>Ip address #1</span>
+                                                    <input type="text" name="setting-test-binding-0-ip" value="127.0.0.1">
+                                                </label>
+                                            </p>
+                                            <p>
+                                                <label>
+                                                    <span>Port #1</span>
+                                                    <input type="text" name="setting-test-binding-0-port" value="25565">
+                                                </label>
+                                            </p>
+                                        </div>
+                                        <div class="settings-basic">
+                                            <p>
+                                                <label>
+                                                    <span>Server-name</span>
+                                                    <input type="text" name="setting-test-server-name" value="Unknown server">
+                                                </label>
+                                            </p>
+                                        </div>
+                                        <div class="settings-minecraft">
+                                            <p>
+                                                <label>
+                                                    <span>Server-name</span>
+                                                    <input type="text" name="setting-test-server-name" value="127.0.0.1">
+                                                </label>
+                                            </p>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab-plugin" style="display: none;">
+
+                                </div>
+                            </div>
+                        </div>
+    </body>
+</html>
