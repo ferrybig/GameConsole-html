@@ -153,6 +153,9 @@ body, html {
     padding: 5px;
     cursor: pointer;
 }
+.tabs {
+    display: flex
+}
 .tabs .tab-console {
     display: flex;
     flex-direction: column;
@@ -160,6 +163,13 @@ body, html {
     color: black;
     margin: 0.5em;
     box-shadow: 0 0 0.25em 0.25em white;
+}
+.tabs .tab-console .console {
+    flex:1; overflow: scroll;
+}
+.tabs .tab-console .console .log
+{
+    white-space: nowrap; margin:0;
 }
 .tabs .tab-console .command-form {
     display: flex;
