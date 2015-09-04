@@ -9,26 +9,8 @@ var processors = navigator.hardwareConcurrency + 1 || 4;
 var constructedPasswordCallback = false;
 var userLoggedIn = false;
 var knownServers = {};
-function setStatus(serverid, status, exitcode) {
-    var newStatus;
-    var newStatusClass;
-    if (status == "stopped") {
-        if (exitcode != "0") {
-            newStatusClass = "error";
-            newStatus = "Crashed: " + exitcode;
-        } else {
-            newStatusClass = "offline";
-            newStatus = "Offline";
-        }
-    } else {
-        newStatusClass = "online";
-        newStatus = "online";
-    }
-    var id = $("#server-status-" + serverid + " .server-status");
-    id.attr("class", "server-status");
-    id.addClass(newStatusClass);
-    id.text(newStatus);
-}
+var runningStateTimeouts = [];
+var activeServer = undefined;
 
 $(function () {
     $.ajax({
@@ -124,7 +106,7 @@ function checkPasswordLogin() {
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     sessionToken = data.session_token;
-                    if(sessionToken === undefined || sessionToken.length === 0) {
+                    if (sessionToken === undefined || sessionToken.length === 0) {
                         authPassword();
                     } else {
                         mainPanel();
@@ -230,15 +212,135 @@ function getLocation(href) {
 
 
 
-function mainPanel(hassAllPermissions) {
+function mainPanel(hasAllPermissions) {
     $("#loginContainer > *").hide();
     $("#loginContainer").addClass("fullsize");
     $("#loginContainer > #console-frame").show();
-    if(hassAllPermissions) {
+    if (hasAllPermissions) {
         $(".create-server").show();
     }
+    refreshServers();
+    runningStateTimeouts.push(window.setInterval(refreshServers, 60000));
 }
 function refreshServers() {
     var newServers = {};
-    
+    $.ajax({
+        type: "POST",
+        url: mainEndPoint + "",
+        dataType: "json",
+        data: JSON.stringify({
+            action: "status",
+            target: "management",
+            authkey: sessionToken
+        }),
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            $.each(data, function (index, element) {
+                newServers[index] = {
+                    status: element.status,
+                    name: element.smalldescription || index,
+                    binding: element.ip,
+                    owner: element.owner,
+                    exitCode: element.exitCode,
+                    readIndex: knownServers[index] && knownServers[index].readIndex || 0,
+                    log: knownServers[index] && knownServers[index].log || []
+                };
+            });
+        }
+    });
+    $.each(knownServers, function (index, element) {
+        if (!newServers[index]) {
+            if (element.elementList) {
+                if(activeServer === index) {
+                    activeServer = undefined;
+                }
+                element.elementList.remove();
+                element.elementPanel.remove();
+            }
+        }
+    });
+    $.each(newServers, function (index, element) {
+        if (knownServers[index] !== undefined) {
+            element.elementList = $('#console-servers').append($("#server-template-list").html());
+                element.elementPanel = $('#console-body').append($("#server-template-main").html());
+                element.elementList.click(function () {
+                    $('#console-body .server-information').hide();
+                    element.elementPanel.show();
+                    activeServer = index;
+                });
+                $(".server-title",element.elementList).text(element.name);
+                $(".quickdesc",element.elementList).text(element.binding);
+                $(".owner",element.elementList).text(element.owner);
+        }
+    });
+    knownServers = newServers;
+    $.each(knownServers, function (index, element) {
+        setStatus(element.elementList, element.status, element.exitCode);
+    });
+}
+function setStatus(serverDiv, status, exitcode) {
+    var newStatus;
+    var newStatusClass;
+    if (status === "stopped") {
+        if (exitcode !== "0" && exitcode !== undefined) {
+            newStatusClass = "error";
+            newStatus = "Crashed: " + exitcode;
+        } else {
+            newStatusClass = "offline";
+            newStatus = "Offline";
+        }
+    } else {
+        newStatusClass = "online";
+        newStatus = "online";
+    }
+    var id = $(".server-status", serverDiv);
+    id.attr("class", "server-status");
+    id.addClass(newStatusClass);
+    id.text(newStatus);
+}
+var consoleInterval = undefined;
+function fetchConsole() {
+    if (consoleInterval !== undefined) {
+        window.clearTimeout(consoleInterval);
+    }
+    fetchConsoleTask();
+}
+function fetchConsoleTask() {
+    consoleInterval = undefined;
+    $.ajax({
+        type: "POST",
+        url: mainEndPoint,
+        data: JSON.stringify(
+                {
+                    "target": "server",
+                    "action": "log",
+                    "server": activeServer,
+                    "blocking": true,
+                    "readIndex": knownServers[activeServer].readIndex
+                }
+        ),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            if (readIndex !== data.oldReadIndex && readIndex !== 0) {
+                appendLog("\\nBUFFER OVERRUN, skipping " + (data.oldReadIndex - readIndex) + " characters of console output\\n", 2);
+            }
+            readIndex = data.nextReadIndex;
+            if (data.log)
+                appendLog(data.log);
+            if (consoleInterval === undefined)
+                if (data.oldReadIndex === data.nextReadIndex) {
+
+                    consoleInterval = window.setTimeout(fetchConsoleTask, 5000);
+                } else if (data.readIndex !== data.nextReadIndex) {
+                    consoleInterval = window.setTimeout(fetchConsoleTask, 100);
+                } else {
+                    window.setTimeout(fetchConsoleTask, 1000);
+                }
+
+        },
+        error: function (errMsg) {
+            consoleInterval = window.setTimeout(fetchConsoleTask, 10000);
+        }
+    });
 }
