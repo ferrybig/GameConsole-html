@@ -171,7 +171,7 @@ function startGeneratingProofOfWork() {
             })(i);
         }
     } else {
-        errorOut("No webworker support, cannot generate proof of work to verify I am a legit computer")
+        errorOut("No webworker support, cannot generate proof of work to verify I am a legit computer");
     }
 }
 
@@ -246,37 +246,46 @@ function refreshServers() {
                     log: knownServers[index] && knownServers[index].log || []
                 };
             });
-        }
-    });
-    $.each(knownServers, function (index, element) {
-        if (!newServers[index]) {
-            if (element.elementList) {
-                if(activeServer === index) {
-                    activeServer = undefined;
+            $.each(knownServers, function (index, element) {
+                if (!newServers[index]) {
+                    if (element.elementList) {
+                        if (activeServer === index) {
+                            activeServer = undefined;
+                        }
+                        element.elementList.remove();
+                        element.elementPanel.remove();
+                    }
                 }
-                element.elementList.remove();
-                element.elementPanel.remove();
-            }
+            });
+            $.each(newServers, function (index, element) {
+                if (knownServers[index] === undefined) {
+                    element.elementList = $($("#server-template-list").html()).appendTo($('#console-servers'));
+                    element.elementPanel = $($("#server-template-main").html()).appendTo($('#console-body'));
+                    element.elementPanel.hide();
+                    element.elementList.click(function () {
+                        $('#console-body .server-information').hide();
+                        element.elementPanel.show();
+                        activeServer = index;
+                    });
+                    $(".server-title", element.elementList).text(element.name);
+                    $(".quickdesc", element.elementList).text(element.binding);
+                    $(".owner", element.elementList).text(element.owner);//server-template-tab-console
+                    addPanel(element, "#server-template-tab-console", "console", function () {
+                        fetchConsole();
+                        console.log("Entered log");
+                    });
+                    addPanel(element, "#server-template-tab-settings", "settings", function () {
+                        console.log("Entered settings");
+                    });
+                }
+            });
+            knownServers = newServers;
+            $.each(knownServers, function (index, element) {
+                setStatus(element.elementList, element.status, element.exitCode);
+            });
         }
     });
-    $.each(newServers, function (index, element) {
-        if (knownServers[index] !== undefined) {
-            element.elementList = $('#console-servers').append($("#server-template-list").html());
-                element.elementPanel = $('#console-body').append($("#server-template-main").html());
-                element.elementList.click(function () {
-                    $('#console-body .server-information').hide();
-                    element.elementPanel.show();
-                    activeServer = index;
-                });
-                $(".server-title",element.elementList).text(element.name);
-                $(".quickdesc",element.elementList).text(element.binding);
-                $(".owner",element.elementList).text(element.owner);
-        }
-    });
-    knownServers = newServers;
-    $.each(knownServers, function (index, element) {
-        setStatus(element.elementList, element.status, element.exitCode);
-    });
+
 }
 function setStatus(serverDiv, status, exitcode) {
     var newStatus;
@@ -307,6 +316,9 @@ function fetchConsole() {
 }
 function fetchConsoleTask() {
     consoleInterval = undefined;
+    if (!activeServer)
+        return;
+    var nowServer = activeServer;
     $.ajax({
         type: "POST",
         url: mainEndPoint,
@@ -322,15 +334,17 @@ function fetchConsoleTask() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            if(!activeServer) return;
+            if(activeServer !== nowServer) return;
+            var readIndex = knownServers[activeServer].readIndex;
             if (readIndex !== data.oldReadIndex && readIndex !== 0) {
                 appendLog("\\nBUFFER OVERRUN, skipping " + (data.oldReadIndex - readIndex) + " characters of console output\\n", 2);
             }
-            readIndex = data.nextReadIndex;
+            knownServers[activeServer].readIndex = readIndex = data.nextReadIndex;
             if (data.log)
                 appendLog(data.log);
             if (consoleInterval === undefined)
                 if (data.oldReadIndex === data.nextReadIndex) {
-
                     consoleInterval = window.setTimeout(fetchConsoleTask, 5000);
                 } else if (data.readIndex !== data.nextReadIndex) {
                     consoleInterval = window.setTimeout(fetchConsoleTask, 100);
@@ -342,5 +356,46 @@ function fetchConsoleTask() {
         error: function (errMsg) {
             consoleInterval = window.setTimeout(fetchConsoleTask, 10000);
         }
+    });
+}
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\\n/g, "<br>").replace(/\\\\/g, "\\");
+}
+var log = [];
+function appendLog(value, error) {
+    var log = $(".log",knownServers[activeServer].panel.screen.log);
+    var console = $(".console",knownServers[activeServer].panel.screen.log);
+    var shouldScroll = console[0].scrollTop <= console[0].scrollHeight;
+    if (log.length >= 100) {
+        this.shift().remove();
+    }
+    var entry = $('<span></span>');
+    entry.html(htmlEntities(value));
+    if (error === 1) {
+        entry.css("color", "yellow");
+    } else if (error === 2) {
+        entry.css("color", "red");
+        entry.css("font-size", "200%");
+    }
+    log.append(entry);
+    if (shouldScroll) {
+        console.scrollTop(console[0].scrollHeight);
+    }
+    return log.push(entry);
+}
+function addPanel(serverContainer, htmlTemplate, shortName, triggerFunction) {
+    if (!serverContainer.panel)
+        serverContainer.panel = {screen: {}, nav: {}, trigger: {}};
+    // navbar
+    serverContainer.panel.screen[shortName] = $("<div class='tab-"+shortName+"'></div>").appendTo($('.tabs', serverContainer.elementPanel));
+    serverContainer.panel.screen[shortName].html($(htmlTemplate).html());
+    serverContainer.panel.nav[shortName] = $("<li class='tab-"+shortName+"'>" + shortName + "</li>").appendTo($('.navbar', serverContainer.elementPanel));
+    serverContainer.panel.trigger[shortName] = triggerFunction;
+    serverContainer.panel.screen[shortName].hide();
+    serverContainer.panel.nav[shortName].click(function () {
+        $('.tabs > *', serverContainer.elementPanel).hide();
+        serverContainer.panel.screen[shortName].show();
+        if (serverContainer.panel.trigger[shortName])
+            serverContainer.panel.trigger[shortName]();
     });
 }
