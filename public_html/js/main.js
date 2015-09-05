@@ -221,6 +221,8 @@ function mainPanel(hasAllPermissions) {
     }
     refreshServers();
     runningStateTimeouts.push(window.setInterval(refreshServers, 60000));
+    fetchConsoleTask();
+    console.log("Done loading..");
 }
 function refreshServers() {
     var newServers = {};
@@ -243,7 +245,86 @@ function refreshServers() {
                     owner: element.owner,
                     exitCode: element.exitCode,
                     readIndex: knownServers[index] && knownServers[index].readIndex || 0,
-                    log: knownServers[index] && knownServers[index].log || []
+                    log: knownServers[index] && knownServers[index].log || [],
+                    panel: knownServers[index].panel,
+                    actions: knownServers[index].actions,
+                    sendCommand: function(message){
+                        $.ajax({
+                            type: "POST",
+                            url: mainEndPoint,
+                            data: JSON.stringify(
+                                    {
+                                        "target": "server",
+                                        "action": "command",
+                                        "server": activeServer,
+                                        authkey: sessionToken,
+                                        "command": message
+                                    }
+                            ),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                fetchConsole();
+                            }
+                        });
+                    },
+                    kill: function(){
+                        $.ajax({
+                            type: "POST",
+                            url: mainEndPoint,
+                            data: JSON.stringify(
+                                    {
+                                        "target": "server",
+                                        "action": "stop",
+                                        "server": activeServer,
+                                        authkey: sessionToken
+                                    }
+                            ),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                window.setTimeout(refreshServers,1000);
+                            }
+                        });
+                    },
+                    forcekill: function(){
+                        $.ajax({
+                            type: "POST",
+                            url: mainEndPoint,
+                            data: JSON.stringify(
+                                    {
+                                        "target": "server",
+                                        "action": "forcestop",
+                                        "server": activeServer,
+                                        authkey: sessionToken
+                                    }
+                            ),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                window.setTimeout(refreshServers,1000);
+                            }
+                        });
+                    },
+                    start: function(){
+                        $.ajax({
+                            type: "POST",
+                            url: mainEndPoint,
+                            data: JSON.stringify(
+                                    {
+                                        "target": "server",
+                                        "action": "start",
+                                        "server": activeServer,
+                                        authkey: sessionToken
+                                    }
+                            ),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            success: function (data) {
+                                window.setTimeout(refreshServers,1000);
+                            }
+                        });
+                    }
                 };
             });
             $.each(knownServers, function (index, element) {
@@ -266,6 +347,7 @@ function refreshServers() {
                         $('#console-body .server-information').hide();
                         element.elementPanel.show();
                         activeServer = index;
+                        fetchConsole();
                     });
                     $(".server-title", element.elementList).text(element.name);
                     $(".quickdesc", element.elementList).text(element.binding);
@@ -277,6 +359,29 @@ function refreshServers() {
                     addPanel(element, "#server-template-tab-settings", "settings", function () {
                         console.log("Entered settings");
                     });
+                    addServerAction(element, "start", "Start server", function(server){
+                        server.start();
+                        fetchConsole();
+                    });
+                    addServerAction(element, "kill", "Kill server", function(server){
+                        server.kill();
+                    });
+                    addServerAction(element, "forcekill", "Force kill server", function(server){
+                        server.forcekill();
+                    });
+                    
+                    
+                    // TODO: make this dynamic
+                    addServerAction(element, "stop", "Stop server", function(server){
+                        server.sendCommand("stop");
+                        server.sendCommand("quit");
+                        server.sendCommand("exit");
+                        server.sendCommand("stop");
+                        server.sendCommand("quit");
+                        server.sendCommand("exit");
+                    });
+                    
+                    $('.tabs > :first-child', element.elementPanel).show();
                 }
             });
             knownServers = newServers;
@@ -309,19 +414,25 @@ function setStatus(serverDiv, status, exitcode) {
 }
 var consoleInterval = undefined;
 function fetchConsole() {
+    console.log("force console fetch");
     if (consoleInterval !== undefined) {
         window.clearTimeout(consoleInterval);
+        fetchConsoleTask();
     }
-    fetchConsoleTask();
 }
 function fetchConsoleTask() {
     consoleInterval = undefined;
-    if (!activeServer)
+    if (!activeServer) {
+        consoleInterval = window.setTimeout(fetchConsoleTask, 10000);
         return;
+    }
+        
     var nowServer = activeServer;
+    console.log("Log request: "+knownServers[activeServer].readIndex);
     $.ajax({
         type: "POST",
         url: mainEndPoint,
+        
         data: JSON.stringify(
                 {
                     "target": "server",
@@ -334,13 +445,21 @@ function fetchConsoleTask() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            if(!activeServer) return;
-            if(activeServer !== nowServer) return;
+            if(!activeServer || activeServer !== nowServer) {
+                consoleInterval = window.setTimeout(fetchConsoleTask, 10000);
+                
+                
+                return;
+            }
             var readIndex = knownServers[activeServer].readIndex;
             if (readIndex !== data.oldReadIndex && readIndex !== 0) {
                 appendLog("\\nBUFFER OVERRUN, skipping " + (data.oldReadIndex - readIndex) + " characters of console output\\n", 2);
             }
-            knownServers[activeServer].readIndex = readIndex = data.nextReadIndex;
+            console.log("my index: "+readIndex);
+            console.log("server start index: "+data.oldReadIndex);
+            console.log("server next index: "+data.nextReadIndex);
+            console.log("server max index: "+data.readIndex);
+            readIndex = data.nextReadIndex;
             if (data.log)
                 appendLog(data.log);
             if (consoleInterval === undefined)
@@ -349,9 +468,9 @@ function fetchConsoleTask() {
                 } else if (data.readIndex !== data.nextReadIndex) {
                     consoleInterval = window.setTimeout(fetchConsoleTask, 100);
                 } else {
-                    window.setTimeout(fetchConsoleTask, 1000);
+                    consoleInterval = window.setTimeout(fetchConsoleTask, 1000);
                 }
-
+            knownServers[activeServer].readIndex = readIndex;
         },
         error: function (errMsg) {
             consoleInterval = window.setTimeout(fetchConsoleTask, 10000);
@@ -397,5 +516,15 @@ function addPanel(serverContainer, htmlTemplate, shortName, triggerFunction) {
         serverContainer.panel.screen[shortName].show();
         if (serverContainer.panel.trigger[shortName])
             serverContainer.panel.trigger[shortName]();
+    });
+}
+function addServerAction(serverContainer, name, displayName, triggerFunction) {
+    if (!serverContainer.actions)
+        serverContainer.actions = {};
+    var currentAction = serverContainer.actions[name] = {};
+    currentAction.trigger = triggerFunction;
+    currentAction.element = $("<li class='action-"+name+"'>"+displayName+"</li>").appendTo($(".quickactions", serverContainer.elementPanel));
+    currentAction.element.click(function() {
+        triggerFunction(serverContainer);
     });
 }
