@@ -138,6 +138,24 @@ body, html {
 .server-information .tabs > * {
     flex: 1;
 }
+.quickactions {
+    display: block;
+    margin: 0;
+    padding: 2px;
+    list-style: none;
+}
+.quickactions > * {
+    display: inline-block;
+    list-style: none;
+    padding: 4px;
+    border: 1px solid black;
+    border-radius: 3px;
+    margin: 2px;
+    cursor: pointer;
+}
+.quickactions > *:hover {
+    background-color: #50A880;
+}
 .navbar {
     border-bottom: 1px solid black;
     margin: 0px;
@@ -196,17 +214,4 @@ body, html {
     box-sizing: border-box;
 }
 
-.quickactions {
-    display: block;
-    margin: 0;
-    padding: 2px;
-    list-style: none;
-}
-.quickactions > * {
-    display: inline-block;
-    list-style: none;
-    padding: 4px;
-    border: 1px solid black;
-    border-radius: 3px;
-    margin: 2px;
-}
+
