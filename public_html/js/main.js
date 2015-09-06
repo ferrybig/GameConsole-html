@@ -238,16 +238,17 @@ function refreshServers() {
         contentType: "application/json; charset=utf-8",
         success: function (data) {
             $.each(data, function (index, element) {
+                var oldData = knownServers[index] || {};
                 newServers[index] = {
                     status: element.status,
                     name: element.smalldescription || index,
                     binding: element.ip,
                     owner: element.owner,
                     exitCode: element.exitCode,
-                    readIndex: knownServers[index] && knownServers[index].readIndex || 0,
-                    log: knownServers[index] && knownServers[index].log || [],
-                    panel: knownServers[index] && knownServers[index].panel,
-                    actions: knownServers[index] && knownServers[index].actions,
+                    readIndex: oldData.readIndex || 0,
+                    log: oldData.log || [],
+                    panel: oldData.panel,
+                    actions: oldData.actions,
                     sendCommand: function(message){
                         $.ajax({
                             type: "POST",
@@ -380,7 +381,6 @@ function refreshServers() {
                         server.sendCommand("quit");
                         server.sendCommand("exit");
                     });
-                    
                     $('.tabs > :first-child', element.elementPanel).show();
                 }
             });
@@ -451,15 +451,11 @@ function fetchConsoleTask() {
                 
                 return;
             }
-            setStatus(knownServers[activeServer], knownServers[activeServer] = data.status, knownServers[activeServer] = data.status || 0);
+            setStatus(knownServers[activeServer], knownServers[activeServer].status = data.status, knownServers[activeServer].exitcode = data.exitcode || 0);
             var readIndex = knownServers[activeServer].readIndex;
             if (readIndex !== data.oldReadIndex && readIndex !== 0) {
                 appendLog("\\nBUFFER OVERRUN, skipping " + (data.oldReadIndex - readIndex) + " characters of console output\\n", 2);
             }
-            console.log("my index: "+readIndex);
-            console.log("server start index: "+data.oldReadIndex);
-            console.log("server next index: "+data.nextReadIndex);
-            console.log("server max index: "+data.readIndex);
             readIndex = data.nextReadIndex;
             if (data.log)
                 appendLog(data.log);
