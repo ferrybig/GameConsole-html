@@ -70,7 +70,7 @@ function authPassword() {
     currentseed === "";
     if (!constructedPasswordCallback) {
         constructedPasswordCallback = true;
-        $("#auth-password").submit(function () {
+        $("#auth-password").submit(function (event) {
             $("#loginContainer > *").hide();
             $("#loginContainer > #auth-password-next").show();
             userLoggedIn = true;
@@ -246,8 +246,8 @@ function refreshServers() {
                     exitCode: element.exitCode,
                     readIndex: knownServers[index] && knownServers[index].readIndex || 0,
                     log: knownServers[index] && knownServers[index].log || [],
-                    panel: knownServers[index].panel,
-                    actions: knownServers[index].actions,
+                    panel: knownServers[index] && knownServers[index].panel,
+                    actions: knownServers[index] && knownServers[index].actions,
                     sendCommand: function(message){
                         $.ajax({
                             type: "POST",
@@ -451,6 +451,7 @@ function fetchConsoleTask() {
                 
                 return;
             }
+            setStatus(knownServers[activeServer], knownServers[activeServer] = data.status, knownServers[activeServer] = data.status || 0);
             var readIndex = knownServers[activeServer].readIndex;
             if (readIndex !== data.oldReadIndex && readIndex !== 0) {
                 appendLog("\\nBUFFER OVERRUN, skipping " + (data.oldReadIndex - readIndex) + " characters of console output\\n", 2);
