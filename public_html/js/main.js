@@ -488,10 +488,9 @@ function appendLog(value, error) {
     var entry = $('<span></span>');
     entry.html(htmlEntities(value));
     if (error === 1) {
-        entry.css("color", "yellow");
+        entry.addClass("log-warning");
     } else if (error === 2) {
-        entry.css("color", "red");
-        entry.css("font-size", "200%");
+        entry.addClass("log-error");
     }
     log.append(entry);
     if (shouldScroll) {
