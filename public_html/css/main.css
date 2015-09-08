@@ -195,6 +195,12 @@ body, html {
 {
     white-space: nowrap; margin:0;
 }
+.tabs .tab-console .console .log-warning {
+    color: yellow;
+}
+.tabs .tab-console .console .log-error {
+    color: red;
+}
 .tabs .tab-console .command-form {
     display: flex;
     position:absolute; 
