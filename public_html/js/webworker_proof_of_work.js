@@ -1,4 +1,4 @@
-importScripts('jssha/src/sha512.js');
+importScripts('jssha/sha512.js');
 onmessage = function (e) {
     var tempStr;
     var discoveredPieces = 0;
