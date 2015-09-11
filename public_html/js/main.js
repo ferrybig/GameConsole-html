@@ -109,7 +109,9 @@ function checkPasswordLogin() {
                     if (sessionToken === undefined || sessionToken.length === 0) {
                         authPassword();
                     } else {
-                        mainPanel();
+                        $("#loggedInUser").text(data.screenusername);
+                        mainPanel(data.servercreatepermission);
+                        
                     }
                 },
                 error: function (errMsg, shortError, longError) {
