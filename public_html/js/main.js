@@ -440,7 +440,7 @@ function fetchConsoleTask() {
                     "target": "server",
                     "action": "log",
                     "server": activeServer,
-                    "blocking": true,
+                    "blocking": false,
                     "readIndex": knownServers[activeServer].readIndex
                 }
         ),
