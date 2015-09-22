@@ -1,4 +1,9 @@
 ## JSON API
+This api works using json endpoints
+
+Every JSON endpoint requires the use of POST requests and its content-type set to Application/json
+
+This software defines the following endpoints:
 ### endpoints
 #### management api
 ##### server_destroy
