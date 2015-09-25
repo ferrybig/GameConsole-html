@@ -23,12 +23,14 @@ This endpoints provides the basic settings for password based service, the follo
 ##### login
 This endpoints verifies the password, ProofOfWorks and token and provides a access token if successfull
 #### management api
+This api provides access to options to operate on the directory of servers itself, 
 ##### server_destroy
 ##### server_create
 ##### server_create_options
 ##### server_status
 ##### server_list
 #### server affecting api
+These endpoints provides the options to operate on the servers themself
 ##### server_status
 ##### server_log
 ##### server_cmd
