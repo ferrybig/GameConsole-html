@@ -44,11 +44,50 @@ Gets a list of all servers running
 #### server affecting api
 These endpoints provides the options to operate on the servers themself
 ##### server_status
+The status of this server
+
+Returns:
+readIndex
+status
+description
+type
 ##### server_log
+Returns the logfile of the server
+
+Arguments:
+
+readIndex: the start byte index where to start reading
+
+Returns:
+oldReadIndex:
+  This is the start of the byte range you recieve, if this isn't the same as the readindex you have send, it means that the console has overrrun
+nextReadIndex:
+  Your next readindex for the next request
+readIndex:
+  The readindex on the server, if this is the same as nextReadIndex, that means you are up to date
 ##### server_cmd
+Sends a command to the server
+
+Arguments:
+
+command: command
 ##### server_start
+Starts a server
 ##### server_kill
+Kills a server
 ##### server_force_kill
+Force kills a server
 ##### server_settings
+Settings api for the server
+
+Returns:
+
+list of properties on this server, having the following attributes:
+
+name: The name of the property
+required: if this required
+type: the type
+readonly: Is this variable readonly
+value: the value of this variable
 ### Access token
 ### Common procedures
