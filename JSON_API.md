@@ -90,4 +90,13 @@ type: the type
 readonly: Is this variable readonly
 value: the value of this variable
 ### Access token
+The whole api is driven by access tokens, these tokens are generated on login, or by a external api.
+
+The maxium length on a access token is 128 hex characters
+
+A access token SHOULD contain hex only
+
+The access token MUST be provided on any non login api, UNLESS the server said no access token check will be performed
+
+Servers SHOULD return HTTP 403 if your access key is invalid or expired
 ### Common procedures
