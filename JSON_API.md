@@ -21,6 +21,7 @@ This endpoints provides the basic settings for password based service, the follo
 * The random token for the next login
 * The amount of ProofOfWorks required
 * The difficulty of the ProofOfWorks
+* When this login_info expires (seconds)
 ##### login
 This endpoints verifies the password, ProofOfWorks and token and provides a access token if successfull
 #### management api
@@ -99,4 +100,18 @@ A access token SHOULD contain hex only
 The access token MUST be provided on any non login api, UNLESS the server said no access token check will be performed
 
 Servers SHOULD return HTTP 403 if your access key is invalid or expired
+### ProofOfWork
 ### Common procedures
+#### Logging in:
+
+A normal password based login procedure goes as follows:
+
+1. Client calls "HTTP.1/1 config GET" for default config
+   Client updates internal url by the recieved new Endpoint
+2. Client calls "HTTP.1/1 login_info GET" for password auth info
+3. Client starts generating ProofOfWorks based on login info
+4. Client waits for user until it filled in username and password
+5. Client makes a request to "HTTP.1/1 login POST" using the random recieved inside the login info, its generated ProofOfWork, username and password
+6. Client recieves an access token and is going to use this access key
+
+Client is now ready to use the api
