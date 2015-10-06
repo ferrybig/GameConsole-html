@@ -74,10 +74,18 @@ Arguments:
 command: command
 ##### server_start
 Starts a server
+
+This starts the server as a new process and listens to its log files and returns the output of the process as stated at the server_log call
 ##### server_kill
 Kills a server
+
+This command should send a SIG TERM to the process running the server to close it.
 ##### server_force_kill
 Force kills a server
+
+this call may be implemented using the same code as a normal server_kill
+
+This command should send a SIG KILL to the process running the server to force close it.
 ##### server_settings
 Settings api for the server
 
