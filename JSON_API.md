@@ -27,7 +27,7 @@ This endpoints verifies the password, ProofOfWorks and token and provides a acce
 #### management api
 This api provides access to options to operate on the directory of servers itself, 
 ##### server_destroy
-This removes a server
+This removes a server. This cannot be undone and the server MAY keep files from the server on the disk, but it MAY also delete the files if it wants to
 ##### server_create
 This adds a server, it requires the options listed by server_create_options
 ##### server_create_options
