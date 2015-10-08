@@ -12,8 +12,6 @@ This endpoint should be called first in the auth process, this endpoint provides
 
 * the type of auth service to use (noauth, password, url)
 * Alternate url's for servicing (as load balancing/other reasons)
-#### auth api
-The following list of api's are related to auth basec actions
 ##### login_info
 This endpoints provides the basic settings for password based service, the following settings are givin:
 
