@@ -7,27 +7,93 @@ This software defines the following endpoints:
 ### Defined endpoints
 #### auth api
 ##### config
-this is a HTTP GET endpoints
+This is a HTTP GET endpoints
 This endpoint should be called first in the auth process, this endpoint provides the following information:
 
-* the type of auth service to use (noauth, password, url)
-* Alternate url's for servicing (as load balancing/other reasons)
+Returns:
+Service : String (optional)
+    This should give the next url for service
+loginType : String (optional)
+    This MUST be present if service is missing
+loginTypeArgument : String (optional)
+    
+
+
 ##### login_info
+This is a HTTP GET endpoints
 This endpoints provides the basic settings for password based service, the following settings are givin:
 
-* The password policy
-* The random token for the next login
-* The amount of ProofOfWorks required
-* The difficulty of the ProofOfWorks
-* When this login_info expires (seconds)
+Returns:
+random : String
+proofOfWorksNeeded : number
+password-policy : String (regex)
+
+
 ##### login
 This endpoints verifies the password, ProofOfWorks and token and provides a access token if successfull
+
+Arguments:
+username : String
+password : String
+random : String
+ProofOfWorks : array of strings
+
+Returns on succes: 
+200 OK with:
+session-token : String
+
+Returns on Failure:
+403 FORBIDDEN
+error_type : Fixed String : AUTH
+
+
 #### management api
 This api provides access to options to operate on the directory of servers itself, 
+
+
 ##### server_destroy
 This removes a server. This cannot be undone and the server MAY keep files from the server on the disk, but it MAY also delete the files if it wants to
+
+Arguments:
+server-id : String
+
+Returns on success:
+204 NO_CONTENT
+
+Returns on Failure (permission):
+403 FORBIDDEN
+error_type : Fixed String : PERMISSION
+
+Returns on Failure (server-failure):
+500 SERVER FAILURE
+error_message : String (optional)
+
+
 ##### server_create
 This adds a server, it requires the options listed by server_create_options
+Arguments:
+server-id : String
+
+Returns on success:
+200 OK
+readIndex : integer
+
+Returns on Failure (server already exists):
+409 CONFLICT
+
+Returns on Failure (server type doesn't have required arguments):
+400 BAD_REQUEST
+
+Returns on Failure (permission):
+403 FORBIDDEN
+error_type : Fixed String : PERMISSION
+
+Returns on Failure (server-failure):
+500 SERVER FAILURE
+error_message : String (optional)
+error_type : Fixed String : PERMISSION
+
+
 ##### server_create_options
 This endpoint provides the required variables needed for a server creating,
 
