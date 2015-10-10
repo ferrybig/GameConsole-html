@@ -106,6 +106,13 @@ Notice: this request is a low priority request since getting all servers is an i
 @see: #server_status at #server affecting api
 ##### server_list
 Gets a list of all servers running
+
+Returns on succes:
+200 OK
+Servers : List of objects {
+	? : String
+        Used as server name
+}
 #### server affecting api
 These endpoints provides the options to operate on the servers themself
 ##### server_status
