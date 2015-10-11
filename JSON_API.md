@@ -113,24 +113,39 @@ Servers : List of objects {
 	? : String
         Used as server name
 }
+
+
+
 #### server affecting api
 These endpoints provides the options to operate on the servers themself
+
 ##### server_status
 The status of this server
 
+Arguments:
+server-id : String
+  Server to affect
+
 Returns:
-readIndex
-status
-description
-type
+200 OK
+readIndex : number
+  The readindex on the server, if this is the same as nextReadIndex, that means you are up to date
+status : String
+  Offline or online
+description : String
+  Description of this server
+type : String
+  Type of server, shared or private
 ##### server_log
 Returns the logfile of the server
 
 Arguments:
-
+server-id : String
+  Server to affect
 readIndex: the start byte index where to start reading
 
 Returns:
+200 OK
 oldReadIndex:
   This is the start of the byte range you recieve, if this isn't the same as the readindex you have send, it means that the console has overrrun
 nextReadIndex:
@@ -138,11 +153,20 @@ nextReadIndex:
 readIndex:
   The readindex on the server, if this is the same as nextReadIndex, that means you are up to date
 ##### server_cmd
-Sends a command to the server
+Sends a command to the server, if the server is offline, the command wont be send
 
 Arguments:
+command : String
+  Command to send
+server-id : String
+  Server to affect
 
-command: command
+Returns:
+200 OK
+readIndex:
+  The readindex on the server, if this is the same as nextReadIndex, that means you are up to date
+status : String
+  Offline or online
 ##### server_start
 Starts a server
 
@@ -151,17 +175,28 @@ This starts the server as a new process and listens to its log files and returns
 Kills a server
 
 This command should send a SIG TERM to the process running the server to close it.
+
+Arguments:
+server-id : String
+  Server to affect
 ##### server_force_kill
 Force kills a server
 
 this call may be implemented using the same code as a normal server_kill
 
 This command should send a SIG KILL to the process running the server to force close it.
+Arguments:
+server-id : String
+  Server to affect
 ##### server_settings
 Settings api for the server
 
-Returns:
+Arguments:
+server-id : String
+  Server to affect
 
+Returns:
+200 OK
 list of properties on this server, having the following attributes:
 
 name: The name of the property
