@@ -4,6 +4,13 @@ This api works using json endpoints
 Every JSON endpoint requires the use of POST requests and its content-type set to Application/json, unless otherwise noted
 
 This software defines the following endpoints:
+### Defined HTTP status codes
+#### 5xx
+The client may retry the request later, but may also give up
+#### 403
+The authoritation token has expired or deleted server side, the client should relogin
+#### 401 
+The client doesn't have permission to request that page
 ### Defined endpoints
 #### auth api
 ##### config
@@ -11,6 +18,7 @@ This is a HTTP GET endpoints
 This endpoint should be called first in the auth process, this endpoint provides the following information:
 
 Returns:
+200 OK
 Service : String (optional)
     This should give the next url for service
 loginType : String (optional)
@@ -24,6 +32,7 @@ This is a HTTP GET endpoints
 This endpoints provides the basic settings for password based service, the following settings are givin:
 
 Returns:
+200 OK
 random : String
 proofOfWorksNeeded : number
 password-policy : String (regex)
