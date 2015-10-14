@@ -246,11 +246,11 @@ Servers SHOULD return HTTP 403 if your access key is invalid or expired
 A normal password based login procedure goes as follows:
 
 1. Client calls "HTTP.1/1 config GET" for default config
-   Client updates internal url by the recieved new Endpoint
-2. Client calls "HTTP.1/1 login_info GET" for password auth info
-3. Client starts generating ProofOfWorks based on login info
-4. Client waits for user until it filled in username and password
-5. Client makes a request to "HTTP.1/1 login POST" using the random recieved inside the login info, its generated ProofOfWork, username and password
-6. Client recieves an access token and is going to use this access key
+2. Client updates internal url by the recieved new Endpoint
+3. Client calls "HTTP.1/1 login_info GET" for password auth info
+4. Client starts generating ProofOfWorks based on login info
+5. Client waits for user until it filled in username and password
+6. Client makes a request to "HTTP.1/1 login POST" using the random recieved inside the login info, its generated ProofOfWork, username and password
+7. Client recieves an access token and is going to use this access key
 
 Client is now ready to use the api
