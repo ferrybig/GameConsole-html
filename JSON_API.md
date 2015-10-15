@@ -239,6 +239,8 @@ Servers SHOULD return HTTP 403 if your access key is invalid or expired
 
 ## ProofOfWork
 
+Proof of works are SHA512 hashes of the random data starting with a certain amount of zero's they serve as a confirmation that client is legit and while the server can verify them quickly, the clients need large amount of powers to calculate them.
+
 ## Common procedures
 
 ### Logging in:
