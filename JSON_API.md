@@ -3,7 +3,7 @@ This api works using json endpoints
 
 Every JSON endpoint requires the use of POST requests and its content-type set to Application/json, unless otherwise noted
 
-This software defines the following endpoints:
+This software defines the following properties:
 
 ## Defined HTTP status codes
 
