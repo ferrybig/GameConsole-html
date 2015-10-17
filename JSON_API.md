@@ -54,6 +54,7 @@ ProofOfWorks : array of strings
 **Returns on succes:**
 200 OK with:
 session-token : String
+permissions : List of strings
 
 **Returns on Failure:**
 403 FORBIDDEN
@@ -240,6 +241,14 @@ Servers SHOULD return HTTP 403 if your access key is invalid or expired
 ## ProofOfWork
 
 Proof of works are SHA512 hashes of the random data starting with a certain amount of zero's they serve as a confirmation that client is legit and while the server can verify them quickly, the clients need large amount of powers to calculate them.
+
+## Defined permissions
+server.create : allows you to create a server
+server.destroy : Allows you to destroy a server
+server.modify : Allows you to modify server settings
+server.modify.full : Allows you to modify all server settings, even the readonly ones
+server.log : Allows you to view server logs
+server.listall : Allows you to list all servers in the system
 
 ## Common procedures
 
