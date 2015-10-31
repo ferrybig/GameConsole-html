@@ -372,6 +372,15 @@ function refreshServers() {
                     addServerAction(element, "forcekill", "Force kill server", function(server){
                         server.forcekill();
                     });
+					console.log("hi");
+					console.log($(".tab-console .command-form", element.elementPanel));
+					$(".tab-console .command-form", element.elementPanel).submit(function () {
+						var data = $(".tab-console .command", element.elementPanel);
+						element.sendCommand(data.val());
+						data.val("");
+						console.log(data);
+						return false;
+					});
                     
                     
                     // TODO: make this dynamic
