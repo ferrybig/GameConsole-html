@@ -250,6 +250,8 @@ function refreshServers() {
                     readIndex: oldData.readIndex || 0,
                     log: oldData.log || [],
                     panel: oldData.panel,
+					elementList: oldData.elementList,
+					elementPanel: oldData.elementPanel,
                     actions: oldData.actions,
                     sendCommand: function(message){
                         $.ajax({
@@ -397,17 +399,19 @@ function refreshServers() {
             });
             knownServers = newServers;
             $.each(knownServers, function (index, element) {
-                setStatus(element.elementList, element.status, element.exitCode);
+				console.log(element.elementList);
+				console.log(data[index].state);
+				setStatus(element.elementList, data[index].state, element.exitCode);
             });
         }
     });
 
 }
 function setStatus(serverDiv, status, exitcode) {
-    var newStatus;
+	var newStatus;
     var newStatusClass;
     if (status === "stopped") {
-        if (exitcode !== "0" && exitcode !== undefined) {
+        if (exitcode === "0" || exitcode === undefined) {
             newStatusClass = "error";
             newStatus = "Crashed: " + exitcode;
         } else {
