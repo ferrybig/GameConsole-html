@@ -494,8 +494,8 @@ function htmlEntities(str) {
 }
 var log = [];
 function appendLog(value, error) {
-    var log = $(".log",knownServers[activeServer].panel.screen.log);
-    var console = $(".console",knownServers[activeServer].panel.screen.log);
+    var log = $(".log",knownServers[activeServer].panel.screen.console);
+    var console = $(".console",knownServers[activeServer].panel.screen.console);
     var shouldScroll = console[0].scrollTop <= console[0].scrollHeight;
     if (log.length >= 100) {
         this.shift().remove();
