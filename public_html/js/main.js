@@ -462,8 +462,6 @@ function fetchConsoleTask() {
         success: function (data) {
             if(!activeServer || activeServer !== nowServer) {
                 consoleInterval = window.setTimeout(fetchConsoleTask, 10000);
-                
-                
                 return;
             }
             setStatus(knownServers[activeServer], knownServers[activeServer].status = data.status, knownServers[activeServer].exitcode = data.exitcode || 0);
